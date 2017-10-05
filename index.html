@@ -7,26 +7,67 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="main.css">
     <link href="https://fonts.googleapis.com/css?family=Farsan" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <title>Weatherapp</title>
+    <script>
+        $(document).ready(function () {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                $.ajax({
+                    url: 'https://fcc-weather-api.glitch.me//api/current?lon=' + position.coords
+                        .longitude + '&lat=' + position.coords.latitude,
+                    data: {
+                        format: 'json'
+                    },
+
+                    dataType: 'jsonp',
+                    success: function (data) {
+                        $('img').attr("src", data.weather[0].icon);
+                        $(".degree").text(data.main.temp);
+
+                    },
+                    type: 'GET'
+                });
+                $.ajax({
+                    url: "https://geoip-db.com/jsonp",
+                    jsonpCallback: "callback",
+                    dataType: "jsonp",
+                    success: function (location) {
+                        $('.location').html(location.city + ',' + location.country_name);
+
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 
 <body>
     <h1>Karakana Inc</h1>
     <h2>Weather App</h2>
-    <h3 class="location">Nyali, Mombasa, KE</h3>
+    <h3 class="location"></h3>
     <h3 class="temperature"><span class="degree">30</span> <sup>0</sup> <span class="unit">C</span> </h3>
-    <div class="weatherImage"></div>
-    <button class="button"><span>Change Units </span></button>
+    <div style="margin:auto">
+        <img class="weatherImage"></img>
+    </div>
+    <button class="button"><span> Change Units </span></button>
 
     <script>
-        function convert(degree) {
+        $('.button').click(function () {
+            convert(parseInt($(".degree").text()), $(".unit").text());
+            $(".unit").text() == "C" ?
+                $(".unit").text("F") :
+                $(".unit").text("C")
+        });
+
+
+        function convert(degree, units) {
             var x;
-            if (degree == "C") {
-                x = $(".degree").text() * 9 / 5 + 32;
-                $(".degree").text().text() = Math.round(x);
+            if (units == "C") {
+                x = degree * 9 / 5 + 32;
+                $(".degree").text(Math.round(x));
             } else {
-                x = ($(".degree").text().text() - 32) * 5 / 9;
-                $(".degree").text().text() = Math.round(x);
+                x = (degree - 32) * 5 / 9;
+                $(".degree").text(Math.round(x));
             }
         }
     </script>
